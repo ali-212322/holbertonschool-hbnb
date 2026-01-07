@@ -10,7 +10,7 @@ from persistence.in_memory_repository import InMemoryRepository
 # Namespace
 api = Namespace("users", description="User operations")
 
-# In-memory repository (مؤقتًا)
+# In-memory repository (temporary)
 repo = InMemoryRepository()
 
 # Swagger models
@@ -28,6 +28,7 @@ user_output = api.model("UserOutput", {
     "email": fields.String,
 })
 
+
 def serialize_user(user):
     """Return user dict without password"""
     return {
@@ -37,6 +38,7 @@ def serialize_user(user):
         "email": user.email,
     }
 
+
 @api.route("/")
 class UserList(Resource):
     @api.expect(user_input)
@@ -44,11 +46,12 @@ class UserList(Resource):
     def post(self):
         """Create a new user"""
         data = api.payload
+
         user = User(
-            first_name=data.get("first_name"),
-            last_name=data.get("last_name"),
-            email=data.get("email"),
-            password=data.get("password"),
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            email=data["email"],
+            password=data["password"],
         )
         repo.add(user)
         return serialize_user(user), 201
@@ -57,7 +60,8 @@ class UserList(Resource):
     def get(self):
         """Get all users"""
         users = repo.get_all()
-        return [serialize_user(u) for u in users]
+        return [serialize_user(u) for u in users], 200
+
 
 @api.route("/<string:user_id>")
 class UserItem(Resource):
@@ -67,22 +71,26 @@ class UserItem(Resource):
         user = repo.get(user_id)
         if not user:
             api.abort(404, "User not found")
-        return serialize_user(user)
+        return serialize_user(user), 200
 
     @api.expect(user_input)
     @api.marshal_with(user_output)
     def put(self, user_id):
-        """Update a user"""
+        """Update a user (partial update)"""
         user = repo.get(user_id)
         if not user:
             api.abort(404, "User not found")
 
         data = api.payload
-        user.update(
-            first_name=data.get("first_name"),
-            last_name=data.get("last_name"),
-            email=data.get("email"),
-            password=data.get("password"),
-        )
-        return serialize_user(user)
 
+        # Partial update: update only provided fields
+        if "first_name" in data:
+            user.first_name = data["first_name"]
+        if "last_name" in data:
+            user.last_name = data["last_name"]
+        if "email" in data:
+            user.email = data["email"]
+        if "password" in data:
+            user.password = data["password"]
+
+        return serialize_user(user), 200
