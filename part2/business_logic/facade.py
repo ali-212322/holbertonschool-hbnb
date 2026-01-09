@@ -14,6 +14,7 @@ class HBnBFacade:
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
 
+    # ---------- USERS ----------
     def create_user(self, **data):
         user = User(**data)
         self.user_repo.add(user)
@@ -29,9 +30,12 @@ class HBnBFacade:
         user = self.get_user(user_id)
         if not user:
             return None
-        user.update(**data)
+        allowed = ["first_name", "last_name", "email", "password"]
+        filtered = {k: v for k, v in data.items() if k in allowed}
+        user.update(**filtered)
         return user
 
+    # ---------- AMENITIES ----------
     def create_amenity(self, **data):
         amenity = Amenity(**data)
         self.amenity_repo.add(amenity)
@@ -47,9 +51,12 @@ class HBnBFacade:
         amenity = self.get_amenity(amenity_id)
         if not amenity:
             return None
-        amenity.update(**data)
+        allowed = ["name"]
+        filtered = {k: v for k, v in data.items() if k in allowed}
+        amenity.update(**filtered)
         return amenity
 
+    # ---------- PLACES ----------
     def create_place(self, **data):
         place = Place(**data)
         self.place_repo.add(place)
@@ -65,12 +72,37 @@ class HBnBFacade:
         place = self.get_place(place_id)
         if not place:
             return None
-        place.update(**data)
+        allowed = [
+            "name",
+            "description",
+            "price",
+            "latitude",
+            "longitude",
+            "amenity_ids"
+        ]
+        filtered = {k: v for k, v in data.items() if k in allowed}
+        place.update(**filtered)
         return place
 
+    # ---------- REVIEWS ----------
     def create_review(self, **data):
         review = Review(**data)
         self.review_repo.add(review)
+        return review
+
+    def list_reviews(self):
+        return self.review_repo.get_all()
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def update_review(self, review_id, **data):
+        review = self.get_review(review_id)
+        if not review:
+            return None
+        allowed = ["text", "rating"]
+        filtered = {k: v for k, v in data.items() if k in allowed}
+        review.update(**filtered)
         return review
 
     def list_reviews_by_place(self, place_id):
@@ -84,3 +116,4 @@ class HBnBFacade:
 
 
 facade = HBnBFacade()
+
