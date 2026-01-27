@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services.facade import HBnBFacade
 
 api = Namespace('places', description='Place operations')
@@ -69,14 +69,17 @@ class PlaceResource(Resource):
     @jwt_required()
     @api.expect(place_model, validate=True)
     def put(self, place_id):
-        """Protected: Update place (owner only)"""
+        """Protected: Update place (owner or admin)"""
         current_user_id = get_jwt_identity()
-        place = facade.get_place(place_id)
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
 
+        place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
 
-        if place.owner_id != current_user_id:
+        # ❌ Ownership check (admin bypass)
+        if not is_admin and place.owner_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
         updated_place = facade.update_place(place_id, api.payload)
@@ -89,14 +92,17 @@ class PlaceResource(Resource):
 
     @jwt_required()
     def delete(self, place_id):
-        """Protected: Delete place (owner only)"""
+        """Protected: Delete place (owner or admin)"""
         current_user_id = get_jwt_identity()
-        place = facade.get_place(place_id)
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
 
+        place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
 
-        if place.owner_id != current_user_id:
+        # ❌ Ownership check (admin bypass)
+        if not is_admin and place.owner_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
         facade.delete_place(place_id)
