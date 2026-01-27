@@ -3,11 +3,13 @@ from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
 
+
 class HBnBFacade:
     def __init__(self):
         # Repositories
         self.user_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
 
     # -------- User methods --------
     def create_user(self, user_data):
@@ -39,11 +41,11 @@ class HBnBFacade:
 
         place = Place(
             title=data['title'],
-            owner=owner,
             description=data.get('description', ''),
-            price=data.get('price', 0),
-            latitude=data.get('latitude'),
-            longitude=data.get('longitude')
+            price=data['price'],
+            latitude=data['latitude'],
+            longitude=data['longitude'],
+            owner_id=data['owner_id']
         )
         self.place_repo.add(place)
         return place
@@ -57,3 +59,31 @@ class HBnBFacade:
     def update_place(self, place_id, data):
         return self.place_repo.update(place_id, data)
 
+    def delete_place(self, place_id):
+        return self.place_repo.delete(place_id)
+
+    # -------- Review methods --------
+    def create_review(self, data):
+        """
+        data must contain:
+        text, place_id, user_id
+        """
+        review = Review(
+            text=data['text'],
+            place_id=data['place_id'],
+            user_id=data['user_id']
+        )
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def update_review(self, review_id, data):
+        return self.review_repo.update(review_id, data)
+
+    def delete_review(self, review_id):
+        return self.review_repo.delete(review_id)
