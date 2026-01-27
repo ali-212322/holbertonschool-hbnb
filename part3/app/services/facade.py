@@ -2,6 +2,7 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
+from app.models.amenity import Amenity
 
 
 class HBnBFacade:
@@ -10,6 +11,7 @@ class HBnBFacade:
         self.user_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
 
     # -------- User methods --------
     def create_user(self, user_data):
@@ -87,3 +89,21 @@ class HBnBFacade:
 
     def delete_review(self, review_id):
         return self.review_repo.delete(review_id)
+
+    # -------- Amenity methods (Admin only via API) --------
+    def create_amenity(self, name):
+        amenity = Amenity(name)
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id, data):
+        return self.amenity_repo.update(amenity_id, data)
+
+    def delete_amenity(self, amenity_id):
+        return self.amenity_repo.delete(amenity_id)
