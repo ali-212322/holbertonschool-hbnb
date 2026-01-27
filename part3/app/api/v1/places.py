@@ -5,6 +5,7 @@ from app.services.facade import HBnBFacade
 api = Namespace('places', description='Place operations')
 facade = HBnBFacade()
 
+# Request model
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
@@ -36,7 +37,7 @@ class PlaceList(Resource):
         current_user_id = get_jwt_identity()
         data = api.payload
 
-        # Set owner from JWT (no spoofing)
+        # Force owner from JWT
         data['owner_id'] = current_user_id
 
         place = facade.create_place(data)
@@ -85,3 +86,18 @@ class PlaceResource(Resource):
             'title': updated_place.title,
             'price': updated_place.price
         }, 200
+
+    @jwt_required()
+    def delete(self, place_id):
+        """Protected: Delete place (owner only)"""
+        current_user_id = get_jwt_identity()
+        place = facade.get_place(place_id)
+
+        if not place:
+            return {'error': 'Place not found'}, 404
+
+        if place.owner_id != current_user_id:
+            return {'error': 'Unauthorized action'}, 403
+
+        facade.delete_place(place_id)
+        return {}, 204
