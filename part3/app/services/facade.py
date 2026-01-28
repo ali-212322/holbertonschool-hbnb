@@ -1,4 +1,4 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import InMemoryRepository, SQLAlchemyRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
@@ -8,7 +8,7 @@ from app.models.amenity import Amenity
 class HBnBFacade:
     def __init__(self):
         # Repositories
-        self.user_repo = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
@@ -33,10 +33,6 @@ class HBnBFacade:
 
     # -------- Place methods --------
     def create_place(self, data):
-        """
-        data must contain:
-        title, description, price, latitude, longitude, owner_id
-        """
         owner = self.get_user(data['owner_id'])
         if not owner:
             raise ValueError("Owner not found")
@@ -66,10 +62,6 @@ class HBnBFacade:
 
     # -------- Review methods --------
     def create_review(self, data):
-        """
-        data must contain:
-        text, place_id, user_id
-        """
         review = Review(
             text=data['text'],
             place_id=data['place_id'],
@@ -90,7 +82,7 @@ class HBnBFacade:
     def delete_review(self, review_id):
         return self.review_repo.delete(review_id)
 
-    # -------- Amenity methods (Admin only via API) --------
+    # -------- Amenity methods --------
     def create_amenity(self, name):
         amenity = Amenity(name)
         self.amenity_repo.add(amenity)
