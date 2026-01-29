@@ -1,40 +1,62 @@
 from app import db
-from app.persistence.repository import Repository
+
+class Repository:
+    """Abstract repository interface defining CRUD operations."""
+
+    def add(self, obj):
+        raise NotImplementedError
+
+    def get(self, obj_id):
+        raise NotImplementedError
+
+    def get_all(self):
+        raise NotImplementedError
+
+    def update(self, obj_id, data):
+        raise NotImplementedError
+
+    def delete(self, obj_id):
+        raise NotImplementedError
+
+    def get_by_attribute(self, attr_name, attr_value):
+        raise NotImplementedError
+
 
 class SQLAlchemyRepository(Repository):
     """SQLAlchemy-based repository implementation."""
 
     def __init__(self, model):
+        """Initialize with a SQLAlchemy model."""
         self.model = model
 
-    def add(self, entity):
-        db.session.add(entity)
+    def add(self, obj):
+        db.session.add(obj)
         db.session.commit()
-        return entity
+        return obj
 
-    def get(self, entity_id):
-        return self.model.query.get(entity_id)
+    def get(self, obj_id):
+        return self.model.query.get(obj_id)
 
     def get_all(self):
         return self.model.query.all()
 
-    def update(self, entity_id, data):
-        entity = self.get(entity_id)
-        if not entity:
+    def update(self, obj_id, data):
+        obj = self.get(obj_id)
+        if not obj:
             return None
         for key, value in data.items():
-            if hasattr(entity, key):
-                setattr(entity, key, value)
+            if hasattr(obj, key):
+                setattr(obj, key, value)
         db.session.commit()
-        return entity
+        return obj
 
-    def delete(self, entity_id):
-        entity = self.get(entity_id)
-        if not entity:
+    def delete(self, obj_id):
+        obj = self.get(obj_id)
+        if not obj:
             return None
-        db.session.delete(entity)
+        db.session.delete(obj)
         db.session.commit()
-        return entity
+        return obj
 
-    def get_by_attribute(self, attribute, value):
-        return self.model.query.filter_by(**{attribute: value}).first()
+    def get_by_attribute(self, attr_name, attr_value):
+        return self.model.query.filter_by(**{attr_name: attr_value}).first()
