@@ -1,5 +1,5 @@
 from app import db
-
+from app.persistence.repository import Repository
 
 class SQLAlchemyRepository(Repository):
     """SQLAlchemy-based repository implementation."""
