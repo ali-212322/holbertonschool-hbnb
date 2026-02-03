@@ -3,20 +3,28 @@ from app import create_app
 
 class TestPlaceEndpoints(unittest.TestCase):
 
-    def setUp(self):
+   def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client()
 
-        # 1. إنشاء مستخدم ليكون Owner
+        # 1. إنشاء مستخدم ليكون Owner (حذفنا كلمة password هنا)
         user_res = self.client.post('/api/v1/users/', json={
-            "first_name": "John", "last_name": "Doe", 
-            "email": "john.place@example.com", "password": "password123"
+            "first_name": "John", 
+            "last_name": "Doe", 
+            "email": "john.place@example.com"
         })
-        self.owner_id = user_res.get_json()['id']
+        
+        # لنتأكد من أن المستخدم تم إنشاؤه بنجاح قبل المتابعة
+        user_data = user_res.get_json()
+        if 'id' not in user_data:
+            print(f"User creation failed: {user_data}")
+            
+        self.owner_id = user_data['id']
 
         # 2. إنشاء مرفق (Amenity)
         amenity_res = self.client.post('/api/v1/amenities/', json={"name": "WiFi"})
         self.amenity_id = amenity_res.get_json()['id']
+       
 
     def test_create_place_success(self):
         """اختبار إنشاء مكان بنجاح مع ربطه بالمالك والمرافق"""
