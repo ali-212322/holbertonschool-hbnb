@@ -3,14 +3,13 @@
 
 from app import db
 from app.models.base_model import BaseModel
-from app.models.user import User
-from app.models.amenity import Amenity
 from sqlalchemy.orm import relationship
 
+# تعريف الجدول الوسيط هنا قبل كلاس Place لمنع الاستيراد الدائري
 place_amenity = db.Table(
     "place_amenity",
-    db.Column("place_id", db.Integer, db.ForeignKey("places.id"), primary_key=True),
-    db.Column("amenity_id", db.Integer, db.ForeignKey("amenities.id"), primary_key=True)
+    db.Column("place_id", db.String(36), db.ForeignKey("places.id"), primary_key=True),
+    db.Column("amenity_id", db.String(36), db.ForeignKey("amenities.id"), primary_key=True)
 )
 
 class Place(BaseModel):
@@ -22,8 +21,10 @@ class Place(BaseModel):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
 
-    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    # تغيير النوع إلى String(36) ليتوافق مع UUID الخاص بجدول المستخدمين
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
 
+    # نستخدم اسم الكلاس كنص "Review" لمنع الاستيراد الدائري
     reviews = relationship(
         "Review",
         backref="place",
@@ -31,61 +32,27 @@ class Place(BaseModel):
         cascade="all, delete-orphan"
     )
 
+    # نستخدم اسم الكلاس كنص "Amenity"
     amenities = relationship(
         "Amenity",
         secondary=place_amenity,
-        back_populates="places",
+        backref="places",  # استخدمنا backref لسهولة الربط من الطرفين
         lazy="subquery"
     )
 
-    def __init__(
-        self,
-        title,
-        owner,
-        description="",
-        price=0.0,
-        latitude=None,
-        longitude=None
-    ):
-        super().__init__()
-
-        if not title or not isinstance(title, str):
-            raise ValueError("title must be a non-empty string")
-        if len(title) > 100:
-            raise ValueError("title must be at most 100 characters")
-
-        if not isinstance(owner, User):
-            raise ValueError("owner must be a User instance")
-
-        if not isinstance(price, (int, float)) or price < 0:
-            raise ValueError("price must be a number >= 0")
-
-        if latitude is not None:
-            if not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
-                raise ValueError("latitude must be between -90 and 90")
-        if longitude is not None:
-            if not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180):
-                raise ValueError("longitude must be between -180 and 180")
-
-        self.title = title
-        self.owner = owner
-        self.description = description
-        self.price = float(price)
-        self.latitude = latitude
-        self.longitude = longitude
-
-        self.reviews = []
-        self.amenities = []
+    def __init__(self, **kwargs):
+        """Initialize Place"""
+        # نمرر الكلمات المفتاحية للـ super() ليتعامل معها BaseModel و SQLAlchemy
+        super().__init__(**kwargs)
 
     def add_review(self, review):
         from app.models.review import Review
         if not isinstance(review, Review):
             raise ValueError("review must be a Review instance")
         self.reviews.append(review)
-        self.save()
 
     def add_amenity(self, amenity):
+        from app.models.amenity import Amenity
         if not isinstance(amenity, Amenity):
             raise ValueError("amenity must be an Amenity instance")
         self.amenities.append(amenity)
-        self.save()
