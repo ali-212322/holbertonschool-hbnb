@@ -5,14 +5,13 @@ from app.models.place import Place
 from app.models.review import Review
 from app.models.amenity import Amenity
 
-
 class HBnBFacade:
     def __init__(self):
-        # Repositories
+        # تم استبدال InMemoryRepository بالمستودعات المبنية على SQLAlchemy
         self.user_repo = UserRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
 
     # -------- User methods --------
     def create_user(self, user_data):
@@ -33,7 +32,7 @@ class HBnBFacade:
         return self.user_repo.get_all()
 
     def update_user(self, user_id, data):
-        # Hash password if updating
+        # تشفير كلمة المرور إذا كانت ضمن البيانات المراد تحديثها
         if "password" in data:
             temp_user = User()
             temp_user.hash_password(data["password"])
@@ -99,7 +98,7 @@ class HBnBFacade:
 
     # -------- Amenity methods --------
     def create_amenity(self, name):
-        amenity = Amenity(name)
+        amenity = Amenity(name=name)
         self.amenity_repo.add(amenity)
         return amenity
 
