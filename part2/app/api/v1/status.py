@@ -1,8 +1,8 @@
 from flask_restx import Namespace, Resource
 
-status_ns = Namespace("status", description="API status")
+api = Namespace("status", description="API Status")
 
-@status_ns.route("/")
+@api.route("/")
 class StatusResource(Resource):
     def get(self):
         return {"status": "OK"}, 200
