@@ -11,7 +11,6 @@ class Review(BaseModel):
 
     def __init__(self, place, user, text, rating):
         super().__init__()
-        # سيتم استدعاء الـ Setters تلقائياً هنا
         self.place = place
         self.user = user
         self.text = text
@@ -43,12 +42,9 @@ class Review(BaseModel):
 
     @text.setter
     def text(self, value):
-        if not value or not isinstance(text, str):
-            # نستخدم التنسيق الذي يفضله الاختبار عادةً
-            if not isinstance(value, str):
-                raise ValueError("text must be a string")
-            if not value.strip():
-                raise ValueError("text must be a non-empty string")
+        # التعديل هنا: نستخدم value وليس text
+        if not value or not isinstance(value, str):
+            raise ValueError("text must be a non-empty string")
         self._text = value
 
     @property
