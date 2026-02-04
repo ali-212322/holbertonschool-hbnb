@@ -1,14 +1,14 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask import request
 from app.services.facade import HBnBFacade
 
 api = Namespace('reviews', description='Review operations')
 facade = HBnBFacade()
 
-# Request model - أضفنا الـ rating هنا ليتوافق مع قاعدة البيانات
+# تم إزالة user_id من هنا لأننا سنأخذه من التوكن آلياً
 review_model = api.model('Review', {
     'place_id': fields.String(required=True, description='ID of the place'),
-    'user_id': fields.String(required=True, description='ID of the user'),
     'text': fields.String(required=True, description='Review text'),
     'rating': fields.Integer(required=True, description='Rating (1-5)', min=1, max=5)
 })
@@ -19,6 +19,7 @@ class ReviewList(Resource):
     @api.response(200, 'List of reviews retrieved successfully')
     def get(self):
         """Get all reviews"""
+        reviews = facade.get_all_reviews()
         return [
             {
                 'id': r.id,
@@ -26,43 +27,44 @@ class ReviewList(Resource):
                 'rating': r.rating,
                 'place_id': r.place_id,
                 'user_id': r.user_id
-            } for r in facade.get_all_reviews()
+            } for r in reviews
         ], 200
 
     @jwt_required()
     @api.expect(review_model, validate=True)
     @api.response(201, 'Review created successfully')
-    @api.response(400, 'Invalid review or business logic error')
+    @api.response(400, 'Invalid input or business logic error')
     @api.response(404, 'Place not found')
     def post(self):
         """Create a review (authenticated users only)"""
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        is_admin = claims.get('is_admin', False)
         data = api.payload
 
-        # 1. التحقق من وجود المكان
+        # 1. التأكد من وجود المكان
         place = facade.get_place(data['place_id'])
         if not place:
             return {'error': 'Place not found'}, 404
 
-        # 2. منع المستخدم من تقييم مكانه الخاص (إلا إذا كان أدمن)
-        if not is_admin and place.owner_id == current_user_id:
+        # 2. منطق الأعمال: منع المالك من تقييم مكانه الخاص
+        if place.owner_id == current_user_id:
             return {'error': 'You cannot review your own place.'}, 400
 
-        # 3. منع تكرار التقييم لنفس المكان من نفس الشخص
+        # 3. منطق الأعمال: منع التكرار (مراجعة واحدة لكل مستخدم لكل مكان)
         all_reviews = facade.get_all_reviews()
-        for review in all_reviews:
-            if review.place_id == data['place_id'] and review.user_id == current_user_id:
-                return {'error': 'You have already reviewed this place.'}, 400
+        if any(r.place_id == data['place_id'] and r.user_id == current_user_id for r in all_reviews):
+            return {'error': 'You have already reviewed this place.'}, 400
 
-        # 4. إنشاء التقييم عبر الـ facade
-        review = facade.create_review(data)
-
-        return {
-            'id': review.id,
-            'message': 'Review created successfully'
-        }, 201
+        # 4. إضافة الـ user_id للبيانات قبل إرسالها للـ facade
+        data['user_id'] = current_user_id
+        
+        try:
+            new_review = facade.create_review(data)
+            return {
+                'id': new_review.id,
+                'message': 'Review created successfully'
+            }, 201
+        except Exception as e:
+            return {'error': str(e)}, 400
 
 @api.route('/<review_id>')
 class ReviewResource(Resource):
@@ -87,7 +89,7 @@ class ReviewResource(Resource):
     @api.response(403, 'Unauthorized action')
     @api.response(404, 'Review not found')
     def put(self, review_id):
-        """Update a review (owner or admin)"""
+        """Update a review (owner or admin only)"""
         current_user_id = get_jwt_identity()
         claims = get_jwt()
         is_admin = claims.get('is_admin', False)
@@ -96,18 +98,19 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
 
+        # التحقق من الصلاحية: صاحب التقييم أو الأدمن فقط
         if not is_admin and review.user_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
-        updated_review = facade.update_review(review_id, api.payload)
+        facade.update_review(review_id, api.payload)
         return {'message': 'Review updated successfully'}, 200
 
     @jwt_required()
-    @api.response(204, 'Review deleted successfully')
+    @api.response(200, 'Review deleted successfully')
     @api.response(403, 'Unauthorized action')
     @api.response(404, 'Review not found')
     def delete(self, review_id):
-        """Delete a review (owner or admin)"""
+        """Delete a review (owner or admin only)"""
         current_user_id = get_jwt_identity()
         claims = get_jwt()
         is_admin = claims.get('is_admin', False)
@@ -116,6 +119,7 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
 
+        # التحقق من الصلاحية: صاحب التقييم أو الأدمن فقط
         if not is_admin and review.user_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
