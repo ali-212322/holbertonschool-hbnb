@@ -31,7 +31,6 @@ class HBnBFacade:
         return self.user_repo.get_all()
 
     def update_user(self, user_id, data):
-        # تشفير كلمة المرور إذا كانت موجودة في بيانات التحديث
         if "password" in data:
             user_to_hash = User()
             user_to_hash.hash_password(data["password"])
@@ -46,11 +45,9 @@ class HBnBFacade:
 
     # -------- Place methods --------
     def create_place(self, data):
-        # فصل المرفقات عن بيانات المكان الأساسية
         amenities_ids = data.pop('amenities', [])
         place = Place(**data)
         
-        # ربط المرفقات بالمكان (Many-to-Many)
         for amenity_id in amenities_ids:
             amenity = self.get_amenity(amenity_id)
             if amenity:
@@ -88,22 +85,28 @@ class HBnBFacade:
         return self.amenity_repo.get_all()
 
     def update_amenity(self, amenity_id, data):
+        # نتحقق من وجود المرفق أولاً لضمان عدم حدوث خطأ 500
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
         return self.amenity_repo.update(amenity_id, data)
+
+    def delete_amenity(self, amenity_id):
+        return self.amenity_repo.delete(amenity_id)
 
     # -------- Review methods --------
     def create_review(self, data):
-        # 1. التحقق من أن المستخدم لا يقيم مكانه (خط دفاع إضافي)
         place = self.get_place(data['place_id'])
         if not place:
             raise ValueError("Place not found")
         
-        if place.owner_id == data['user_id']:
+        # استخدام str() لضمان دقة المقارنة بين UUID و String
+        if str(place.owner_id) == str(data['user_id']):
             raise ValueError("You cannot review your own place")
 
-        # 2. التحقق من عدم تكرار التقييم لنفس المكان من نفس المستخدم
         existing_reviews = self.get_all_reviews()
         for r in existing_reviews:
-            if r.place_id == data['place_id'] and r.user_id == data['user_id']:
+            if str(r.place_id) == str(data['place_id']) and str(r.user_id) == str(data['user_id']):
                 raise ValueError("You have already reviewed this place")
 
         review = Review(
