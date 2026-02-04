@@ -45,34 +45,23 @@ class HBnBFacade:
     def delete_user(self, user_id):
         return self.user_repo.delete(user_id)
 
-    # -------- create place --------
 def create_place(self, data):
-        # 1. سحب معرفات المرافق
         amenities_ids = data.pop('amenities', [])
-        
-        # 2. إنشاء كائن المكان (تأكد أن الاسم هو place ليتطابق مع الـ return)
         place = Place(**data)
         
-        # 3. ربط المرافق بالمكان
         for amenity_id in amenities_ids:
             amenity = self.get_amenity(amenity_id)
             if amenity:
                 place.amenities.append(amenity)
         
-        # 4. الحفظ في المستودع
         self.place_repo.add(place)
         return place
 
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
 
-    def create_review(self, data):
-        # تأكد أن هذه الدالة أيضاً تبدأ بنفس المحاذاة
-        from app.models.review import Review
-        new_review = Review(**data)
-        self.review_repo.add(new_review)
-        return new_review
-        
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
     # -------- Review methods --------
     def create_review(self, data):
         review = Review(
