@@ -45,31 +45,22 @@ class HBnBFacade:
     def delete_user(self, user_id):
         return self.user_repo.delete(user_id)
 
-   # -------- create place --------\
-
-def create_place(self, data):
-        # 1. التأكد من وجود المالك
-        owner = self.get_user(data['owner_id'])
-        if not owner:
-            raise ValueError("Owner not found")
-
-        # 2. سحب المرافق قبل إنشاء كائن Place
-        amenities_ids = data.pop('amenities', [])
-
-        # 3. إنشاء كائن المكان
-        place = Place(**data)
-        
-        # 4. ربط المرافق (هنا قد يحدث الخطأ إذا لم يكن الاسم مطابقاً في الموديل)
-        for amenity_id in amenities_ids:
-            amenity = self.get_amenity(amenity_id)
-            if amenity:
-                # تأكد أن اسم الحقل في موديل Place هو amenities
-                place.amenities.append(amenity)
-
-        self.place_repo.add(place)
+# -------- Place methods --------
+    def create_place(self, data):
+        # ... كود الأماكن ...
         return place
 
-
+    # تأكد أن هذا السطر يبدأ تماماً تحت السطر الذي يسبقه (4 مسافات)
+    def create_review(self, data):
+        review = Review(
+            text=data['text'],
+            place_id=data['place_id'],
+            user_id=data['user_id'],
+            rating=data.get('rating') # أضف الراتينج لضمان عدم حدوث خطأ مستقبلي
+        )
+        self.review_repo.add(review)
+        return review
+        
     # -------- Review methods --------
     def create_review(self, data):
         review = Review(
