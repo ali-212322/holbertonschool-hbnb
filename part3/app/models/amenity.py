@@ -9,15 +9,15 @@ class Amenity(BaseModel):
 
     name = db.Column(db.String(50), nullable=False, unique=True)
 
-    # ملاحظة: تم حذف تعريف relationship هنا لأننا استخدمنا backref في ملف Place.
-    # هذا يمنع الاستيراد الدائري تماماً ويسمح لك بالوصول لـ amenity.places برمجياً.
-
     def __init__(self, **kwargs):
-        """Initialize Amenity"""
-        # نتحقق من الاسم إذا تم تمريره يدوياً
+        """
+        Initialize Amenity with proper validation
+        """
         name = kwargs.get('name')
-        if name:
-            if not isinstance(name, str) or len(name) > 50:
-                raise ValueError("name must be a string of max 50 characters")
-        
+        if name is not None:
+            # التأكد من أنه نص وليس فارغاً ولا يتجاوز 50 حرفاً
+            if not isinstance(name, str) or len(name.strip()) == 0 or len(name) > 50:
+                raise ValueError("name must be a non-empty string of max 50 characters")
+            kwargs['name'] = name.strip()
+
         super().__init__(**kwargs)
