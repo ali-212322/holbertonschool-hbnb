@@ -45,21 +45,29 @@ class HBnBFacade:
     def delete_user(self, user_id):
         return self.user_repo.delete(user_id)
 
-# -------- Place methods --------
-    def create_place(self, data):
-        # ... كود الأماكن ...
-        return place
+    # -------- create place --------
 
-    # تأكد أن هذا السطر يبدأ تماماً تحت السطر الذي يسبقه (4 مسافات)
-    def create_review(self, data):
-        review = Review(
-            text=data['text'],
-            place_id=data['place_id'],
-            user_id=data['user_id'],
-            rating=data.get('rating') # أضف الراتينج لضمان عدم حدوث خطأ مستقبلي
-        )
-        self.review_repo.add(review)
-        return review
+def create_place(self, data):
+        # 1. سحب المرافق من البيانات قبل إنشاء المكان
+        amenities_ids = data.pop('amenities', [])
+        
+        # 2. إنشاء كائن المكان (تأكد من استخدام نفس الاسم 'new_place' أو 'place')
+        new_place = Place(**data)
+        
+        # 3. ربط المرافق بالمكان
+        for amenity_id in amenities_ids:
+            # استخدمنا self.get_amenity التي سنعرفها بالأسفل
+            amenity = self.get_amenity(amenity_id)
+            if amenity:
+                new_place.amenities.append(amenity)
+        
+        # 4. حفظ في قاعدة البيانات
+        self.place_repo.add(new_place)
+        return new_place  # تأكد أن الاسم يطابق المتغير فوق
+
+    # أضف هذه الدالة إذا كانت ناقصة (لحل AttributeError السابق)
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
         
     # -------- Review methods --------
     def create_review(self, data):
