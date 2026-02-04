@@ -1,37 +1,26 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import create_access_token
-from app.services import facade
+from app.services.facade import HBnBFacade
 
 api = Namespace('auth', description='Authentication operations')
+facade = HBnBFacade()
 
-# Model for login input
 login_model = api.model('Login', {
     'email': fields.String(required=True, description='User email'),
     'password': fields.String(required=True, description='User password')
 })
 
-
 @api.route('/login')
-class Login(Resource):
+class LoginResource(Resource):
     @api.expect(login_model, validate=True)
-    @api.response(200, 'Login successful')
-    @api.response(401, 'Invalid credentials')
     def post(self):
-        """Authenticate user and return JWT token"""
+        """Login and receive a JWT token"""
+        data = api.payload
+        user = facade.get_user_by_email(data['email'])
 
-        credentials = api.payload
-
-        # Get user by email
-        user = facade.get_user_by_email(credentials['email'])
-
-        # Validate user and password
-        if not user or not user.verify_password(credentials['password']):
-            return {'error': 'Invalid credentials'}, 401
-
-        # Create JWT token
-        access_token = create_access_token(
-            identity=str(user.id),
-            additional_claims={"is_admin": user.is_admin}
-        )
-
-        return {'access_token': access_token}, 200
+        if user and user.verify_password(data['password']):
+            # نضع معلومات إضافية في التوكن مثل (is_admin)
+            access_token = create_access_token(identity=user.id, additional_claims={'is_admin': user.is_admin})
+            return {'access_token': access_token}, 200
+        
+        return {'error': 'Invalid email or password'}, 401
