@@ -63,7 +63,26 @@ class HBnBFacade:
         return self.place_repo.get_all()
 
     def update_place(self, place_id, data):
-        return self.place_repo.update(place_id, data)
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+
+        # معالجة المرافق: تحويل المعرفات إلى كائنات حقيقية
+        if 'amenities' in data:
+            amenity_ids = data.pop('amenities')
+            place.amenities = []  # تفريغ القائمة الحالية
+            for a_id in amenity_ids:
+                amenity = self.get_amenity(a_id)
+                if amenity:
+                    place.amenities.append(amenity)
+
+        # تحديث بقية الحقول (title, description, price, etc.)
+        for key, value in data.items():
+            if hasattr(place, key):
+                setattr(place, key, value)
+
+        # إرسال الكائن المعدل للـ Repository للـ commit
+        return self.place_repo.update(place.id, place)
 
     def delete_place(self, place_id):
         return self.place_repo.delete(place_id)
@@ -85,7 +104,6 @@ class HBnBFacade:
         return self.amenity_repo.get_all()
 
     def update_amenity(self, amenity_id, data):
-        # نتحقق من وجود المرفق أولاً لضمان عدم حدوث خطأ 500
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             return None
@@ -100,7 +118,6 @@ class HBnBFacade:
         if not place:
             raise ValueError("Place not found")
         
-        # استخدام str() لضمان دقة المقارنة بين UUID و String
         if str(place.owner_id) == str(data['user_id']):
             raise ValueError("You cannot review your own place")
 
