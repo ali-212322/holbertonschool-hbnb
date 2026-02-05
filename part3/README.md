@@ -157,12 +157,13 @@ All relationships are enforced via **foreign keys** and **association tables**.
 Below is the ER diagram representing the core entities and their relationships in the HBnB system, created using Mermaid.js:
 
 ```
+
 erDiagram
     USERS {
-        uuid id PK
+        string id
         string first_name
         string last_name
-        string email UK
+        string email
         string password
         boolean is_admin
         datetime created_at
@@ -170,46 +171,38 @@ erDiagram
     }
 
     PLACES {
-        uuid id PK
+        string id
         string title
         string description
-        decimal price
+        float price
         float latitude
         float longitude
-        uuid owner_id FK
+        string owner_id
         datetime created_at
         datetime updated_at
     }
 
     REVIEWS {
-        uuid id PK
+        string id
         string text
         int rating
-        uuid user_id FK
-        uuid place_id FK
+        string user_id
+        string place_id
         datetime created_at
         datetime updated_at
     }
 
     AMENITIES {
-        uuid id PK
-        string name UK
+        string id
+        string name
         datetime created_at
         datetime updated_at
     }
 
-    PLACE_AMENITY {
-        uuid place_id PK,FK
-        uuid amenity_id PK,FK
-        datetime created_at
-        datetime updated_at
-    }
-
-    USERS ||--o{ PLACES : "owns"
-    USERS ||--o{ REVIEWS : "writes"
-    PLACES ||--o{ REVIEWS : "has"
-    PLACES ||--o{ PLACE_AMENITY : ""
-    AMENITIES ||--o{ PLACE_AMENITY : ""
+    USERS ||--o{ PLACES : owns
+    USERS ||--o{ REVIEWS : writes
+    PLACES ||--o{ REVIEWS : has
+    PLACES }o--o{ AMENITIES : includes
 
 ```
 
