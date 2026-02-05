@@ -5,8 +5,6 @@
 This project follows a modular structure to ensure maintainability and scalability. The current setup implements the foundation for the Business Logic Layer (BLL), the API, and the in-memory persistence layer.
 
 ```
-root@ip-10-42-229-106:~/holbertonschool-hbnb/part3# tree
-.
 |-- API_TESTING.md
 |-- DATABASE_DIAGRAM.md
 |-- README.md
