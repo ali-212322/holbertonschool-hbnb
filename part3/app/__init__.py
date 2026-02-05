@@ -1,46 +1,45 @@
-import pytest
-from app import create_app, db
-from app.models.user import User
+from flask import Flask
+from flask_restx import Api
+from .extensions import db, bcrypt, jwt  # استيراد من الملف الجديد
+from config import config
 
-@pytest.fixture
-def client():
-    # تمرير المسار النصي الكامل كما يتوقعه ملف __init__.py لديك
-    app = create_app('config.TestingConfig') 
+def create_app(config_class="config.DevelopmentConfig"):
+    app = Flask(__name__)
     
-    with app.test_client() as client:
-        with app.app_context():
-            # إنشاء الجداول في قاعدة بيانات الذاكرة
-            db.create_all()
+    # التحقق مما إذا كان المدخل نصاً للمسار أو اسماً للبيئة
+    if isinstance(config_class, str):
+        if config_class.startswith("config."):
+            app.config.from_object(config_class)
+        else:
+            app.config.from_object(config.get(config_class, config['default']))
+    else:
+        app.config.from_object(config_class)
 
-            # زرع بيانات المستخدم المسؤول (Admin)
-            if not User.query.filter_by(email="admin@hbnb.io").first():
-                admin_user = User(
-                    email="admin@hbnb.io",
-                    first_name="Admin",
-                    last_name="HBnB",
-                    is_admin=True
-                )
-                admin_user.hash_password("admin1234")
-                db.session.add(admin_user)
-                db.session.commit()
+    # 1. تهيئة الإضافات الأساسية من extensions
+    db.init_app(app)
+    bcrypt.init_app(app)
+    jwt.init_app(app)
 
-            yield client
+    # 2. تعريف كائن الـ API المركزي
+    api = Api(app, 
+              version='1.0', 
+              title='HBnB API', 
+              description='HBnB Application API with Authentication',
+              doc='/api/v1/')
 
-            # التنظيف بعد الاختبار
-            db.session.remove()
-            db.drop_all()
+    # 3. استيراد الـ Namespaces داخل سياق التطبيق لكسر دائرة الاستيراد
+    with app.app_context():
+        from app.api.v1.users import api as users_ns
+        from app.api.v1.auth import api as auth_ns
+        from app.api.v1.amenities import api as amenities_ns
+        from app.api.v1.places import api as places_ns
+        from app.api.v1.reviews import api as reviews_ns
 
-def test_login_success(client):
-    """اختبار تسجيل الدخول بنجاح والتحقق من التوكن"""
-    response = client.post('/api/v1/auth/login', json={
-        "email": "admin@hbnb.io",
-        "password": "admin1234"
-    })
-    
-    # في حال الفشل، اطبع الرد للمساعدة في التشخيص
-    if response.status_code != 200:
-        print(f"\nResponse Body: {response.get_json()}")
-
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "access_token" in data
+        # 4. تسجيل الـ Namespaces
+        api.add_namespace(users_ns, path='/api/v1/users')
+        api.add_namespace(auth_ns, path='/api/v1/auth')
+        api.add_namespace(amenities_ns, path='/api/v1/amenities')
+        api.add_namespace(places_ns, path='/api/v1/places')
+        api.add_namespace(reviews_ns, path='/api/v1/reviews')
+        
+    return app
