@@ -1,48 +1,44 @@
-## Database ER Diagram (Mermaid.js)
-
-
-```mermaid
 erDiagram
 
     USER {
-        string id
+        string id PK
         string first_name
         string last_name
-        string email
+        string email UK
         string password
         boolean is_admin
     }
 
     PLACE {
-        string id
+        string id PK
         string title
         string description
         float price
         float latitude
         float longitude
-        string owner_id
+        string owner_id FK
     }
 
     REVIEW {
-        string id
+        string id PK
         string text
         int rating
-        string user_id
-        string place_id
+        string user_id FK
+        string place_id FK
     }
 
     AMENITY {
-        string id
+        string id PK
         string name
     }
 
     PLACE_AMENITY {
-        string place_id
-        string amenity_id
+        string place_id FK
+        string amenity_id FK
     }
 
-    USER ||--o{ PLACE : owns
-    USER ||--o{ REVIEW : writes
-    PLACE ||--o{ REVIEW : has
-    PLACE ||--o{ PLACE_AMENITY : links
-    AMENITY ||--o{ PLACE_AMENITY : links
+    USER ||--o{ PLACE : "owns"
+    USER ||--o{ REVIEW : "writes"
+    PLACE ||--o{ REVIEW : "has"
+    PLACE ||--o{ PLACE_AMENITY : "includes"
+    AMENITY ||--o{ PLACE_AMENITY : "is present in"
