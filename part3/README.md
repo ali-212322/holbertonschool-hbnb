@@ -157,8 +157,6 @@ All relationships are enforced via **foreign keys** and **association tables**.
 Below is the ER diagram representing the core entities and their relationships in the HBnB system, created using Mermaid.js:
 
 ```
-mermaid
-
 erDiagram
     USERS {
         uuid id PK
