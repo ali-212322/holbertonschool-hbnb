@@ -1,15 +1,23 @@
----
-
-# 🏠 HBnB Project – Part 3
-
+# 🏠 HBnB Project – Part 3  
 **Enhanced Backend with Authentication & Database Integration**
+
+---
 
 ## 📌 Overview
 
 Part 3 of the **HBnB Project** focuses on transforming the backend from a prototype-level implementation into a **secure, scalable, and production-ready system**.
-This phase introduces **JWT-based authentication**, **role-based authorization**, and **persistent data storage** using **SQLAlchemy** with **SQLite** for development and **MySQL** for production readiness.
 
-The project follows clean architecture principles, including the **Repository Pattern**, **Facade Pattern**, and clear separation between API, services, and persistence layers.
+This phase introduces:
+- JWT-based authentication
+- Role-based authorization
+- Persistent data storage using SQLAlchemy
+
+The application uses **SQLite** for development and is prepared for **MySQL** in production.
+
+The project follows clean architecture principles such as:
+- Repository Pattern  
+- Facade Pattern  
+- Clear separation between API, services, and persistence layers  
 
 ---
 
@@ -17,13 +25,13 @@ The project follows clean architecture principles, including the **Repository Pa
 
 By completing this part, the backend will:
 
-* Implement **JWT Authentication** using `flask-jwt-extended`
-* Enforce **Role-Based Access Control (RBAC)** with admin privileges
-* Replace in-memory storage with **SQLAlchemy ORM**
-* Persist data using **SQLite** (development) and prepare for **MySQL** (production)
-* Secure sensitive operations (users, places, reviews, amenities)
-* Design and visualize the database schema using **Mermaid.js**
-* Ensure data integrity, validation, and scalability
+- Implement JWT Authentication using `flask-jwt-extended`
+- Enforce Role-Based Access Control (RBAC) with admin privileges
+- Replace in-memory storage with SQLAlchemy ORM
+- Persist data using SQLite (development) and prepare for MySQL (production)
+- Secure sensitive operations (users, places, reviews, amenities)
+- Design and visualize the database schema using Mermaid.js
+- Ensure data integrity, validation, and scalability
 
 ---
 
@@ -81,83 +89,70 @@ By completing this part, the backend will:
 ## 🔐 Authentication & Authorization
 
 ### Authentication
+- Implemented using **JWT (JSON Web Tokens)**
+- Users authenticate via:
 
-* Implemented using **JWT (JSON Web Tokens)**
-* Users authenticate via:
 
-  ```
-  POST /api/v1/auth/login
-  ```
-* A valid JWT is required for protected endpoints
+- A valid JWT is required for protected endpoints
 
 ### Authorization
-
-* Role-based access using `is_admin`
-* Two roles:
-
-  * **Regular User**
-  * **Administrator**
+- Role-based access using `is_admin`
+- Two roles:
+  - Regular User
+  - Administrator
 
 ---
 
 ## 👤 User Roles & Permissions
 
 ### Public Endpoints (No Authentication)
-
-* `GET /api/v1/places/`
-* `GET /api/v1/places/<place_id>`
+- `GET /api/v1/places/`
+- `GET /api/v1/places/<place_id>`
 
 ### Authenticated User Endpoints
-
-* Create and manage **own places**
-* Create, update, and delete **own reviews**
-* Update **own user profile** (excluding email & password)
+- Create and manage own places
+- Create, update, and delete own reviews
+- Update own user profile (excluding email and password)
 
 ### Administrator Endpoints
-
-* Create and modify **any user**
-* Modify **email and password** of users
-* Add and modify **amenities**
-* Bypass ownership restrictions for places and reviews
+- Create and modify any user
+- Modify email and password of users
+- Add and modify amenities
+- Bypass ownership restrictions for places and reviews
 
 ---
 
 ## 🗄️ Database & Persistence
 
 ### ORM
-
-* **SQLAlchemy** with **Flask-SQLAlchemy**
+- SQLAlchemy with Flask-SQLAlchemy
 
 ### Databases
-
-* **SQLite** → Development
-* **MySQL** → Production-ready configuration
+- SQLite → Development
+- MySQL → Production-ready configuration
 
 ### Repository Pattern
-
-* Generic `SQLAlchemyRepository` for CRUD
-* Specialized repositories (e.g. `UserRepository`) for entity-specific queries
+- Generic SQLAlchemyRepository for CRUD operations
+- Specialized repositories (e.g. UserRepository) for entity-specific queries
 
 ---
 
 ## 🔗 Entity Relationships
 
-* **User → Place**: One-to-Many
-* **User → Review**: One-to-Many
-* **Place → Review**: One-to-Many
-* **Place ↔ Amenity**: Many-to-Many
+- User → Place: One-to-Many  
+- User → Review: One-to-Many  
+- Place → Review: One-to-Many  
+- Place ↔ Amenity: Many-to-Many  
 
-All relationships are enforced via **foreign keys** and **association tables**.
+All relationships are enforced via foreign keys and association tables.
 
 ---
 
 ## 🧩 Database Diagram (Mermaid.js)
 
+The following ER diagram represents the database schema of the HBnB system:
 
-Below is the ER diagram representing the core entities and their relationships in the HBnB system, created using Mermaid.js:
-
-```
-
+```mermaid
 erDiagram
     USERS {
         string id
@@ -203,88 +198,105 @@ erDiagram
     USERS ||--o{ REVIEWS : writes
     PLACES ||--o{ REVIEWS : has
     PLACES }o--o{ AMENITIES : includes
+Security Measures
 
-```
+Passwords are hashed using bcrypt
 
----
+Passwords are never exposed in API responses
 
-## 🔑 Security Measures
+JWT tokens are required for protected endpoints
 
-* Passwords are hashed using **bcrypt**
-* Passwords are never exposed in API responses
-* JWT tokens are required for protected operations
-* Ownership validation for user-generated content
-* Unique constraints enforced at database level
+Ownership validation for user-generated content
 
----
+Unique constraints enforced at database level
 
-## 🧪 Testing
 
-* API tested using **Postman** and **cURL**
-* Manual testing of:
 
-  * Authentication flow
-  * Authorization checks
-  * Ownership restrictions
-  * Admin privileges
-  * CRUD operations
+🔑 Security Measures
 
----
+Passwords are hashed using bcrypt
 
-## 🛠️ Installation & Setup
+Passwords are never exposed in API responses
 
-### Requirements
+JWT tokens are required for protected endpoints
 
-```txt
+Ownership validation for user-generated content
+
+Unique constraints enforced at database level
+
+
+
+🧪 Testing
+
+API tested using Postman and cURL
+
+Manual testing includes:
+
+Authentication flow
+
+Authorization checks
+
+Ownership restrictions
+
+Admin privileges
+
+CRUD operations
+
+🛠️ Installation & Setup
+Requirements
+
 flask
 flask-restx
 flask-jwt-extended
 flask-bcrypt
 flask-sqlalchemy
 sqlalchemy
-```
 
-### Initialize Database
+Initialize Database
 
-```bash
 flask shell
 >>> from app import db
 >>> db.create_all()
-```
 
-### Run Application
-
-```bash
+Run Application
 python run.py
-```
 
----
 
-## 🚀 Expected Outcome
+🚀 Expected Outcome
 
-By the end of **Part 3**, the HBnB backend:
+By the end of Part 3, the HBnB backend:
 
-* Is fully **authenticated and authorized**
-* Uses **persistent relational storage**
-* Follows **clean architecture principles**
-* Is **secure**, **scalable**, and **production-ready**
-* Is well-documented with **ER diagrams and SQL scripts**
+Is fully authenticated and authorized
 
----
+Uses persistent relational storage
 
-## 🧑‍💻 Authors
+Follows clean architecture principles
 
-* Ali Abdullah Summan
-* Ali Hassan Almaghrabi
-* Omar Hail Alanzi
+Is secure, scalable, and production-ready
 
----
+Is well-documented with ER diagrams and SQL scripts
 
-## 📚 References
 
-* Flask Documentation
-* Flask-JWT-Extended
-* Flask-SQLAlchemy
-* SQLAlchemy ORM
-* OWASP Security Best Practices
-* Mermaid.js Documentation
+🧑‍💻 Authors
+
+Ali Abdullah Summan
+
+Ali Hassan Almaghrabi
+
+Omar Hail Alanzi
+
+
+📚 References
+
+Flask Documentation
+
+Flask-JWT-Extended
+
+Flask-SQLAlchemy
+
+SQLAlchemy ORM
+
+OWASP Security Best Practices
+
+Mermaid.js Documentation
+
