@@ -4,8 +4,9 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "super-secret-key"
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "jwt-secret-key"
+    # تم تحديث المفاتيح لتكون أطول من 32 حرفاً لإزالة تحذيرات InsecureKeyLengthWarning
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "hbnb_project_super_secure_and_very_long_secret_key_12345"
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "jwt_super_secure_and_very_long_secret_key_hbnb_2024"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
 
@@ -14,7 +15,6 @@ class DevelopmentConfig(Config):
     # مسار قاعدة بيانات التطوير
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'development.db')
 
-# --- التحديث الجديد هنا ---
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
@@ -27,4 +27,3 @@ config = {
     'testing': TestingConfig,
     'default': DevelopmentConfig
 }
-# -------------------------
