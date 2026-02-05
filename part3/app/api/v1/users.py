@@ -93,16 +93,13 @@ class UserResource(Resource):
         is_admin = claims.get('is_admin', False)
         data = api.payload
 
-        # 1. منع المستخدم من تعديل بيانات غيره إلا إذا كان أدمن
         if not is_admin and user_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
-        # 2. قيود المستخدم العادي: لا يمكنه تغيير الإيميل أو كلمة المرور في هذا المسار
         if not is_admin:
             if 'email' in data or 'password' in data:
                 return {'error': 'You cannot modify email or password.'}, 400
 
-        # 3. في حالة الأدمن يحاول تغيير الإيميل لمستخدم آخر، يجب التأكد من عدم التكرار
         if is_admin and 'email' in data:
             existing_user = facade.get_user_by_email(data['email'])
             if existing_user and existing_user.id != user_id:
@@ -113,3 +110,20 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
             
         return {'id': user.id, 'message': 'User updated successfully'}, 200
+
+    @jwt_required()
+    @api.response(204, 'User deleted successfully')
+    @api.response(403, 'Admin privileges required')
+    @api.response(404, 'User not found')
+    def delete(self, user_id):
+        """Delete a user (Admin only)"""
+        claims = get_jwt()
+        if not claims.get('is_admin', False):
+            return {'error': 'Admin privileges required'}, 403
+
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        facade.delete_user(user_id)
+        return '', 204
