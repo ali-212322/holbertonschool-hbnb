@@ -11,5 +11,20 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    # إضافة مسار قاعدة البيانات هنا
+    # مسار قاعدة بيانات التطوير
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'development.db')
+
+# --- التحديث الجديد هنا ---
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG = True
+    # استخدام قاعدة بيانات في الذاكرة (In-memory) تجعل الاختبارات سريعة ولا تترك ملفات خلفها
+    SQLALCHEMY_DATABASE_URI = 'sqlite://' 
+
+# قاموس لتسهيل استدعاء الإعدادات حسب البيئة
+config = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+}
+# -------------------------
