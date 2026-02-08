@@ -147,7 +147,9 @@ By completing this part, the backend will:
 🧑‍💻 Authors
 
 Ali Abdullah Summan
+
 Ali Hassan Almaghrabi
+
 Omar Hail Alanzi
 
 ...
