@@ -12,16 +12,19 @@
   </header>
 
   <main>
-    <form class="add-review form">
+    <form id="review-form" class="form add-review">
       <h2>Add Review</h2>
-      <textarea required></textarea>
-      <input type="number" min="1" max="5" required>
-      <button type="submit">Submit</button>
+      <textarea id="review-text" placeholder="Your comment" required></textarea>
+      <input id="review-rating" type="number" min="1" max="5" placeholder="Rating" required>
+      <button type="submit">Submit Review</button>
     </form>
   </main>
 
   <footer>
     <p>All rights reserved</p>
   </footer>
+
+  <script src="js/add_review.js"></script>
 </body>
 </html>
+

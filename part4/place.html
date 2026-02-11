@@ -9,31 +9,27 @@
 <body>
   <header>
     <img src="images/logo.png" class="logo">
+    <a href="login.html" class="login-button" id="login-link">Login</a>
   </header>
 
   <main>
-    <section class="place-details">
-      <div class="place-info">
-        <h2>Sample Place</h2>
-        <p>Host: John Doe</p>
-        <p>Price: $120</p>
-        <p>Description goes here</p>
-      </div>
+    <section id="place-details" class="place-details">
+      <!-- Place details will be inserted here by JS -->
+    </section>
 
-      <section class="reviews">
-        <article class="review-card">
-          <p>Great place</p>
-          <p>User: Alice</p>
-          <p>Rating: 5</p>
-        </article>
-      </section>
-
-      <a href="add_review.html" class="details-button">Add Review</a>
+    <section id="add-review" class="add-review form">
+      <h2>Add Review</h2>
+      <textarea id="review-text" placeholder="Your comment" required></textarea>
+      <input id="review-rating" type="number" min="1" max="5" placeholder="Rating" required>
+      <button id="submit-review">Submit Review</button>
     </section>
   </main>
 
   <footer>
     <p>All rights reserved</p>
   </footer>
+
+  <script src="js/place_details.js"></script>
 </body>
 </html>
+
