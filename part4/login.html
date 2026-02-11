@@ -2,29 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - HBnB</title>
   <link rel="icon" href="images/icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header>
-    <img src="images/logo.png" class="logo">
+    <img src="images/logo.png" alt="HBnB Logo" class="logo">
   </header>
 
   <main>
     <form id="login-form" class="form">
       <h2>Login</h2>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Password" required>
-      <button type="submit">Login</button>
+      
+      <div class="input-group">
+          <input type="email" id="email" placeholder="Email" required>
+      </div>
+
+      <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required>
+      </div>
+
+      <button type="submit" class="btn-login">Login</button>
     </form>
   </main>
 
   <footer>
-    <p>All rights reserved</p>
+    <p>© 2026 HBnB Evolution. All rights reserved.</p>
   </footer>
 
   <script src="js/auth.js"></script>
 </body>
 </html>
-
