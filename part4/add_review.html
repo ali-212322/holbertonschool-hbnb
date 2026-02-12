@@ -2,29 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Review</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HBnB - Add Review</title>
   <link rel="icon" href="images/icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header>
-    <img src="images/logo.png" class="logo">
+    <div class="header-container">
+      <img src="images/logo.png" alt="HBnB Logo" class="logo">
+    </div>
   </header>
 
-  <main>
-    <form id="review-form" class="form add-review">
-      <h2>Add Review</h2>
-      <textarea id="review-text" placeholder="Your comment" required></textarea>
-      <input id="review-rating" type="number" min="1" max="5" placeholder="Rating" required>
-      <button type="submit">Submit Review</button>
-    </form>
+  <main class="container">
+    <section class="review-form-container">
+      <h1 id="place-name-header">Reviewing: Loading...</h1>
+      
+      <div class="card add-review-card">
+        <h2>Add a Review</h2>
+        <form id="review-form">
+          <div class="form-group">
+            <label for="review-text">Your Review:</label>
+            <textarea id="review-text" rows="6" required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="review-rating">Rating:</label>
+            <select id="review-rating" required>
+              <option value="1">1 Star</option>
+              <option value="2">2 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="5">5 Stars</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="submit-button">Submit Review</button>
+        </form>
+      </div>
+    </section>
   </main>
 
   <footer>
-    <p>All rights reserved</p>
+    <p>© 2024 HBnB Evolution. All rights reserved.</p>
   </footer>
 
   <script src="js/add_review.js"></script>
 </body>
 </html>
-
