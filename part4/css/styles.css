@@ -1,46 +1,148 @@
-body {
-  font-family: Arial, sans-serif;
+/* الإعدادات العامة */
+:root {
+    --primary-color: #ff9900; /* اللون البرتقالي الموحد من الصور */
+    --bg-color: #f4f4f4;
+    --text-color: #333;
+    --card-bg: #ffffff;
+    --border-color: #dddddd;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* الهيدر والفوتر */
+header, footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 0;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
 }
 
 .logo {
-  height: 40px;
-}
-
-.login-button,
-.details-button,
-button {
-  background-color: #1e3a8a;
-  color: white;
-  padding: 10px;
-  text-decoration: none;
-  border: none;
-  border-radius: 5px;
-}
-
-.place-card,
-.review-card {
-  margin: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-.form {
-  max-width: 400px;
-  margin: 40px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    height: 45px;
 }
 
 footer {
-  text-align: center;
-  padding: 10px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* الأزرار */
+.login-button, .details-button, .submit-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 1px solid white; /* لتبرز في الهيدر */
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.login-button:hover, .details-button:hover, .submit-button:hover {
+    background-color: #e68a00;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* تخطيط الصفحة الرئيسية */
+.hero {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.filter-section {
+    margin-top: 10px;
+}
+
+.places-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto 100px auto; /* مسافة للفوتر */
+}
+
+/* البطاقات (Cards) */
+.card, .place-card, .review-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* الظل الموجود في الصور */
+    transition: transform 0.2s;
+}
+
+.place-card {
+    width: 300px;
+    text-align: center;
+}
+
+.place-card h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+/* صفحة التفاصيل والتقييمات */
+.container {
+    max-width: 800px;
+    margin: 40px auto 120px auto;
+    padding: 0 20px;
+}
+
+.review-card {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.review-card strong {
+    color: #000;
+}
+
+/* الفورم (Login & Add Review) */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-sizing: border-box; /* لضمان العرض الصحيح */
+}
+
+.submit-button {
+    width: 100%;
+    border: none;
+    font-size: 1rem;
+}
+
+/* إخفاء العناصر البرمجية */
+#add-review {
+    margin-top: 30px;
 }
