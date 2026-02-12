@@ -1,30 +1,27 @@
--- تنظيف البيانات القديمة لضمان بداية نظيفة (اختياري)
-DELETE FROM place_amenity;
+-- تنظيف البيانات لضمان بداية نظيفة
 DELETE FROM reviews;
 DELETE FROM places;
 DELETE FROM amenities;
 DELETE FROM users;
 
--- 1. حقن مستخدم أدمن (Admin)
--- المعرف (ID) هو UUID ثابت لكي نتمكن من استخدامه في ربط الجداول الأخرى
-INSERT INTO users (id, first_name, last_name, email, password, is_admin)
-VALUES ('user-admin-001', 'Ali', 'Abdullah', 'admin@hbnb.com', 'password123', 1);
+-- 1. حقن المستخدمين (يوجد لديهم كلاس user.py)
+INSERT INTO users (id, first_name, last_name, email, password, is_admin) VALUES 
+('u-admin', 'Ali', 'Abdullah', 'admin@hbnb.com', 'pass_admin', 1),
+('u-host-1', 'Sami', 'Khalid', 'sami@host.com', 'pass_host', 0),
+('u-guest-1', 'Sara', 'Ahmed', 'sara@guest.com', 'pass_guest', 0);
 
--- 2. حقن المرافق (Amenities)
+-- 2. حقن المرافق (يوجد لديهم كلاس amenity.py)
 INSERT INTO amenities (id, name) VALUES 
-('am-001', 'WiFi'), 
-('am-002', 'Swimming Pool'), 
-('am-003', 'Air Conditioning');
+('a1', 'WiFi'), 
+('a2', 'Swimming Pool'), 
+('a3', 'Air Conditioning');
 
--- 3. حقن مكان (Place) مملوك للأدمن
-INSERT INTO places (id, title, description, price, latitude, longitude, owner_id)
-VALUES ('pl-001', 'Luxury Riyadh Villa', 'A beautiful villa with sunset view', 450.00, 24.7136, 46.6753, 'user-admin-001');
+-- 3. حقن أماكن (يوجد لديهم كلاس place.py)
+INSERT INTO places (id, title, description, price, latitude, longitude, owner_id) VALUES 
+('p1', 'Modern Apartment', 'Near city center', 120.00, 24.71, 46.67, 'u-host-1'),
+('p2', 'Desert Resort', 'Quiet and peaceful', 350.00, 24.85, 46.50, 'u-host-1');
 
--- 4. ربط المكان بالمرافق (Many-to-Many)
-INSERT INTO place_amenity (place_id, amenity_id) VALUES 
-('pl-001', 'am-001'),
-('pl-001', 'am-003');
-
--- 5. حقن تقييم (Review) للمكان
-INSERT INTO reviews (id, text, rating, user_id, place_id)
-VALUES ('rev-001', 'Amazing place, very clean!', 5, 'user-admin-001', 'pl-001');
+-- 4. حقن تقييمات (يوجد لديهم كلاس review.py)
+INSERT INTO reviews (id, text, rating, user_id, place_id) VALUES 
+('r1', 'Clean and tidy!', 5, 'u-guest-1', 'p1'),
+('r2', 'A bit far from shops', 3, 'u-guest-1', 'p2');
