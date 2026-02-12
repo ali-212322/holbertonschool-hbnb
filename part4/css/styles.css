@@ -16,7 +16,7 @@ body {
     min-height: 100vh;
 }
 
-/* الهيدر والفوتر باللون البرتقالي الكامل */
+/* الهيدر والفوتر */
 header, footer {
     background-color: var(--primary-orange);
     color: var(--white);
@@ -24,7 +24,7 @@ header, footer {
 }
 
 .header-container {
-    max-width: 1000px;
+    max-width: 1200px; /* زيادة العرض ليتناسب مع شبكة الأماكن */
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -36,29 +36,68 @@ header, footer {
     height: 40px;
 }
 
-footer {
-    text-align: center;
-    margin-top: auto; /* يدفع الفوتر للأسفل */
+.login-button {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
 }
 
-/* تنسيق الحاوية الرئيسية (Main) */
+footer {
+    text-align: center;
+    margin-top: auto;
+    padding: 20px 0;
+}
+
+/* الحاوية الرئيسية */
 main {
     padding: 40px 20px;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column; /* للسماح بالعنوان فوق المحتوى */
+    align-items: center;
 }
 
-/* تنسيق البطاقات (Cards) - السر في هذا الكلاس */
-.card, .login-card, .add-review-card {
+/* العناوين الكبيرة (مثل صفحة الأماكن والتقييم) */
+h1, h2 {
+    color: var(--dark-text);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* تنسيق البطاقات الموحد (Login, Add Review, Place Details) */
+.card, .login-card, .add-review-card, .place-details-card {
     background: var(--white);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     width: 100%;
-    max-width: 400px; /* يمنع التمدد العرضي الكبير الظاهر في صورتك */
+    max-width: 500px; /* عرض مناسب للنماذج */
+    margin: 0 auto;
+}
+
+/* شبكة الأماكن (صفحة index.html) */
+#places-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* توزيع تلقائي احترافي */
+    gap: 30px;
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 20px;
+}
+
+/* بطاقة المكان الفردي في الشبكة */
+.place-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
     text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease; /* تأثير الحوم */
+}
+
+.place-card:hover {
+    transform: translateY(-5px);
 }
 
 /* تنسيق حقول الإدخال */
@@ -70,14 +109,14 @@ main {
 input, textarea, select {
     width: 100%;
     padding: 12px;
-    margin-top: 5px;
+    margin-top: 8px;
     border: 1px solid var(--border);
     border-radius: 5px;
-    box-sizing: border-box; /* يمنع خروج الحقل عن حدود البطاقة */
+    box-sizing: border-box;
 }
 
-/* تنسيق الأزرار البرتقالية */
-.submit-button, .btn-login, .details-button {
+/* الأزرار */
+.submit-button, .details-button {
     background-color: var(--primary-orange);
     color: white;
     border: none;
@@ -87,17 +126,23 @@ input, textarea, select {
     font-weight: bold;
     cursor: pointer;
     transition: background 0.3s;
+    text-decoration: none;
+    display: inline-block;
 }
 
-.submit-button:hover {
+.submit-button:hover, .details-button:hover {
     background-color: #e68a00;
 }
 
-/* تنسيق شبكة الأماكن (Index Page) */
-.places-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+/* مخصص لصفحة التقييم (add_review.html) */
+.review-container {
     width: 100%;
-    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#place-name-header {
+    font-size: 2rem;
+    margin-bottom: 10px;
 }
