@@ -1,29 +1,30 @@
-/* الإعدادات العامة */
+/* الإعدادات العامة للموقع */
 :root {
-    --primary-color: #ff9900; /* اللون البرتقالي الموحد من الصور */
-    --bg-color: #f4f4f4;
-    --text-color: #333;
-    --card-bg: #ffffff;
-    --border-color: #dddddd;
+    --primary-orange: #ff9900;
+    --light-gray: #f4f4f4;
+    --dark-text: #333;
+    --white: #ffffff;
+    --border: #dddddd;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
+    font-family: 'Arial', sans-serif;
+    background-color: var(--light-gray);
     margin: 0;
-    color: var(--text-color);
-    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* الهيدر والفوتر */
+/* الهيدر والفوتر باللون البرتقالي الكامل */
 header, footer {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 10px 0;
+    background-color: var(--primary-orange);
+    color: var(--white);
+    padding: 15px 0;
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -32,117 +33,71 @@ header, footer {
 }
 
 .logo {
-    height: 45px;
+    height: 40px;
 }
 
 footer {
     text-align: center;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    margin-top: auto; /* يدفع الفوتر للأسفل */
 }
 
-/* الأزرار */
-.login-button, .details-button, .submit-button {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border: 1px solid white; /* لتبرز في الهيدر */
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.login-button:hover, .details-button:hover, .submit-button:hover {
-    background-color: #e68a00;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* تخطيط الصفحة الرئيسية */
-.hero {
-    text-align: center;
+/* تنسيق الحاوية الرئيسية (Main) */
+main {
     padding: 40px 20px;
-}
-
-.filter-section {
-    margin-top: 10px;
-}
-
-.places-grid {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto 100px auto; /* مسافة للفوتر */
+    align-items: flex-start;
 }
 
-/* البطاقات (Cards) */
-.card, .place-card, .review-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* الظل الموجود في الصور */
-    transition: transform 0.2s;
-}
-
-.place-card {
-    width: 300px;
+/* تنسيق البطاقات (Cards) - السر في هذا الكلاس */
+.card, .login-card, .add-review-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px; /* يمنع التمدد العرضي الكبير الظاهر في صورتك */
     text-align: center;
 }
 
-.place-card h2 {
-    margin-top: 0;
-    font-size: 1.5rem;
-}
-
-/* صفحة التفاصيل والتقييمات */
-.container {
-    max-width: 800px;
-    margin: 40px auto 120px auto;
-    padding: 0 20px;
-}
-
-.review-card {
-    text-align: left;
-    margin-bottom: 15px;
-}
-
-.review-card strong {
-    color: #000;
-}
-
-/* الفورم (Login & Add Review) */
+/* تنسيق حقول الإدخال */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
 }
 
 input, textarea, select {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-sizing: border-box; /* لضمان العرض الصحيح */
+    margin-top: 5px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    box-sizing: border-box; /* يمنع خروج الحقل عن حدود البطاقة */
 }
 
-.submit-button {
-    width: 100%;
+/* تنسيق الأزرار البرتقالية */
+.submit-button, .btn-login, .details-button {
+    background-color: var(--primary-orange);
+    color: white;
     border: none;
-    font-size: 1rem;
+    border-radius: 5px;
+    padding: 12px 20px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
 }
 
-/* إخفاء العناصر البرمجية */
-#add-review {
-    margin-top: 30px;
+.submit-button:hover {
+    background-color: #e68a00;
+}
+
+/* تنسيق شبكة الأماكن (Index Page) */
+.places-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
 }
