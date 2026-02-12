@@ -1,3 +1,8 @@
+// دالة مساعدة لتحويل الرقم إلى نجوم ★
+function getStarRating(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+}
+
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -11,7 +16,6 @@ function getPlaceIdFromURL() {
 }
 
 async function fetchPlaceDetails(token, placeId) {
-    /* التعديل 1: الرابط الديناميكي لبيئة Codespaces */
     let baseUrl = window.location.origin.replace('-3000', '-5000').replace('-8080', '-5000');
     if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
         baseUrl = 'http://127.0.0.1:5000';
@@ -20,18 +24,14 @@ async function fetchPlaceDetails(token, placeId) {
     const API_URL = `${baseUrl}/api/v1/places/${placeId}`;
 
     try {
-        const response = await fetch(API_URL, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch(API_URL, { headers });
 
         if (response.ok) {
             const data = await response.json();
             displayPlaceDetails(data);
         } else {
-            console.error('Failed to fetch place details');
-            alert('Place details not found.');
+            window.location.href = 'index.html';
         }
     } catch (error) {
         console.error('Error:', error);
@@ -43,82 +43,71 @@ function displayPlaceDetails(place) {
     if (!container) return;
     container.innerHTML = '';
 
-    /* التعديل 2: مواءمة المسميات (title بدلاً من name) */
-    const info = document.createElement('div');
-    info.className = 'place-info-section';
-    
-    // معالجة المرافق (Amenities) إذا كانت قائمة من الكائنات أو نصوص
     const amenitiesList = place.amenities && place.amenities.length > 0 
         ? place.amenities.map(a => typeof a === 'object' ? a.name : a).join(', ')
-        : 'No amenities listed';
+        : 'None';
 
-    info.innerHTML = `
+    // إنشاء قسم المعلومات الأساسية (مطابق لـ img_place.png)
+    const infoSection = document.createElement('div');
+    infoSection.className = 'card place-details-card';
+    infoSection.innerHTML = `
         <h1>${place.title || place.name}</h1>
         <div class="place-meta">
-            <p><strong>Host ID:</strong> ${place.owner_id || 'Unknown'}</p>
+            <p><strong>Host:</strong> ${place.host_name || 'Owner'}</p>
             <p><strong>Price per night:</strong> $${place.price}</p>
         </div>
         <div class="place-description">
-            <h3>Description</h3>
             <p>${place.description || 'No description provided.'}</p>
         </div>
         <div class="place-amenities">
-            <h3>Amenities</h3>
-            <p>${amenitiesList}</p>
+            <p><strong>Amenities:</strong> ${amenitiesList}</p>
         </div>
     `;
-    container.appendChild(info);
+    container.appendChild(infoSection);
 
-    /* التعديل 3: مواءمة عرض التقييمات (Reviews) */
-    const reviewsHeader = document.createElement('h3');
-    reviewsHeader.innerText = 'Reviews';
-    container.appendChild(reviewsHeader);
+    // قسم التقييمات
+    const reviewsTitle = document.createElement('h2');
+    reviewsTitle.innerText = 'Reviews';
+    reviewsTitle.className = 'section-title';
+    container.appendChild(reviewsTitle);
 
-    const reviewsSection = document.createElement('div');
-    reviewsSection.className = 'reviews-container';
+    const reviewsContainer = document.createElement('div');
+    reviewsContainer.className = 'reviews-list';
 
     if (place.reviews && place.reviews.length > 0) {
         place.reviews.forEach(review => {
-            const reviewCard = document.createElement('article');
-            reviewCard.className = 'review-card';
-            // نستخدم review.text و review.rating كما حقناها في SQL
+            const reviewCard = document.createElement('div');
+            reviewCard.className = 'card review-card';
             reviewCard.innerHTML = `
-                <div class="review-header">
-                    <span class="user-name">User ID: ${review.user_id}</span>
-                    <span class="rating">⭐ ${review.rating}/5</span>
-                </div>
-                <p class="review-text">"${review.text || review.comment}"</p>
+                <p><strong>${review.user_name || 'User'}:</strong></p>
+                <p class="rating-stars">${getStarRating(review.rating)}</p>
+                <p class="review-text">${review.text || review.comment}</p>
             `;
-            reviewsSection.appendChild(reviewCard);
+            reviewsContainer.appendChild(reviewCard);
         });
     } else {
-        reviewsSection.innerHTML = '<p class="no-reviews">No reviews for this place yet.</p>';
+        reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
     }
-    container.appendChild(reviewsSection);
-}
-
-function checkAuthentication(placeId) {
-    const token = getCookie('token');
-    const addReviewSection = document.getElementById('add-review');
-    const loginLink = document.getElementById('login-link');
-
-    // جلب البيانات دائماً، ولكن التحكم في ظهور نموذج إضافة تقييم
-    if (token) {
-        if (addReviewSection) addReviewSection.style.display = 'block';
-        if (loginLink) loginLink.style.display = 'none';
-        fetchPlaceDetails(token, placeId);
-    } else {
-        if (addReviewSection) addReviewSection.style.display = 'none';
-        if (loginLink) loginLink.style.display = 'block';
-        // حتى لو لم يسجل دخول، نحاول جلب البيانات (حسب سياسة الـ API لديك)
-        fetchPlaceDetails(null, placeId);
-    }
+    container.appendChild(reviewsContainer);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const placeId = getPlaceIdFromURL();
+    const token = getCookie('token');
+    const addReviewSection = document.getElementById('add-review');
+    
     if (placeId) {
-        checkAuthentication(placeId);
+        fetchPlaceDetails(token, placeId);
+        
+        // إظهار قسم إضافة التقييم فقط إذا كان هناك توكن
+        if (token && addReviewSection) {
+            addReviewSection.style.display = 'block';
+            // تحديث رابط الزر إذا كنت تستخدم صفحة منفصلة
+            const submitBtn = document.getElementById('submit-review');
+            if (submitBtn) {
+                submitBtn.onclick = () => window.location.href = `add_review.html?id=${placeId}`;
+            }
+        }
     } else {
         window.location.href = 'index.html';
     }
