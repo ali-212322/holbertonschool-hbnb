@@ -30,9 +30,16 @@ class PlaceList(Resource):
     @jwt_required()
     @api.expect(place_model, validate=True)
     @api.response(201, 'Place created successfully')
+    @api.response(403, 'Unauthorized: Only admin can add places')
     def post(self):
-        """Protected: Create a new place"""
+        """Protected: Create a new place (Restricted to admin@hbnb.com)"""
         current_user_id = get_jwt_identity()
+        
+        # التحقق من أن المستخدم هو admin@hbnb.com
+        user = facade.get_user(current_user_id)
+        if not user or user.email != 'admin@hbnb.com':
+            return {'error': 'Unauthorized: Only admin@hbnb.com can add places'}, 403
+
         data = api.payload
 
         if data['price'] <= 0:
@@ -65,7 +72,6 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
 
-        # --- تعديل: جلب اسم المضيف الحقيقي ---
         host = facade.get_user(place.owner_id)
         host_name = f"{host.first_name} {host.last_name}" if host else "Owner"
 
@@ -76,17 +82,14 @@ class PlaceResource(Resource):
             'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
-            'host_name': host_name, # إرسال اسم المضيف للواجهة
+            'host_name': host_name,
             'owner_id': place.owner_id,
-            # إرسال المرافق بشكل منظم
             'amenities': [{'id': a.id, 'name': a.name} for a in place.amenities],
-            # --- تعديل: إرسال التقييمات مع أسماء أصحابها ---
             'reviews': [
                 {
                     'id': r.id, 
                     'text': r.text, 
                     'rating': r.rating,
-                    # جلب الاسم الكامل من كائن المستخدم المرتبط بالتقييم
                     'user_name': f"{r.user.first_name} {r.user.last_name}" if hasattr(r, 'user') and r.user else "Anonymous User"
                 } for r in place.reviews
             ]
@@ -96,8 +99,10 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Protected: Update place details"""
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        is_admin = claims.get('is_admin', False)
+        user = facade.get_user(current_user_id)
+        
+        # السماح فقط للأدمن أو صاحب المكان
+        is_admin = user.email == 'admin@hbnb.com' if user else False
 
         place = facade.get_place(place_id)
         if not place:
@@ -116,10 +121,10 @@ class PlaceAmenityResource(Resource):
     @api.response(200, 'Amenity added to place successfully')
     @api.response(404, 'Place or Amenity not found')
     def post(self, place_id, amenity_id):
-        """Link an amenity to a place (Owner or Admin only)"""
+        """Link an amenity to a place (Admin only for admin@hbnb.com)"""
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        is_admin = claims.get('is_admin', False)
+        user = facade.get_user(current_user_id)
+        is_admin = user.email == 'admin@hbnb.com' if user else False
 
         place = facade.get_place(place_id)
         if not place:

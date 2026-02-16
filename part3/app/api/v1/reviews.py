@@ -33,10 +33,18 @@ class ReviewList(Resource):
     @api.expect(review_model, validate=True)
     @api.response(201, 'Review created successfully')
     @api.response(400, 'Invalid input or business logic error')
+    @api.response(403, 'Unauthorized: Admin cannot post reviews')
     @api.response(404, 'Place not found')
     def post(self):
-        """Create a review (authenticated users only)"""
+        """Create a review (authenticated users only, restricted for admin)"""
         current_user_id = get_jwt_identity()
+        
+        # --- التعديل: منع admin@hbnb.com من إضافة تقييمات ---
+        user = facade.get_user(current_user_id)
+        if user and user.email == 'admin@hbnb.com':
+            print(f"REJECTED: Admin {user.email} tried to post a review.")
+            return {'error': 'Unauthorized: Admin is not allowed to post reviews.'}, 403
+
         data = api.payload
 
         # 1. التأكد من وجود المكان
@@ -46,7 +54,6 @@ class ReviewList(Resource):
             return {'error': 'Place not found'}, 404
 
         # 2. منع المالك من تقييم مكانه الخاص
-        # قمنا بإضافة طباعة للتيرمينال للتأكد إذا كان هذا هو سبب الـ 400
         if str(place.owner_id) == str(current_user_id):
             print(f"REJECTED: User {current_user_id} is the owner of place {place.id}")
             return {'error': 'You cannot review your own place.'}, 400
@@ -97,8 +104,8 @@ class ReviewResource(Resource):
     def put(self, review_id):
         """Update a review (owner or admin only)"""
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        is_admin = claims.get('is_admin', False)
+        user = facade.get_user(current_user_id)
+        is_admin = user.email == 'admin@hbnb.com' if user else False
 
         review = facade.get_review(review_id)
         if not review:
@@ -117,8 +124,8 @@ class ReviewResource(Resource):
     def delete(self, review_id):
         """Delete a review (owner or admin only)"""
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        is_admin = claims.get('is_admin', False)
+        user = facade.get_user(current_user_id)
+        is_admin = user.email == 'admin@hbnb.com' if user else False
 
         review = facade.get_review(review_id)
         if not review:
